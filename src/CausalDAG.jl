@@ -41,7 +41,7 @@ Add a directed edge from → to (causal arrow).
 function add_edge!(g::CausalGraph, from::Symbol, to::Symbol)
     i = g.name_to_index[from]
     j = g.name_to_index[to]
-    add_edge!(g.graph, i, j) || error("Cannot add edge (creates cycle?)")
+    Graphs.add_edge!(g.graph, i, j) || error("Cannot add edge (creates cycle?)")
     nothing
 end
 
