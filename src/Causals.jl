@@ -37,7 +37,9 @@ using .BradfordHill
 export BradfordHillCriteria, assess_causality, strength_of_evidence
 
 using .CausalDAG
-export CausalGraph, add_edge!, remove_edge!, d_separation, ancestors, descendants, backdoor_criterion, frontdoor_criterion, markov_blanket
+export CausalGraph, d_separation, ancestors, descendants, backdoor_criterion, frontdoor_criterion, markov_blanket
+# Note: add_edge! and remove_edge! not re-exported to avoid conflict with Graphs.jl
+# Use CausalDAG.add_edge! or import explicitly: using Causals.CausalDAG: add_edge!
 
 using .Granger
 export granger_test, granger_causality, optimal_lag, bidirectional_granger
