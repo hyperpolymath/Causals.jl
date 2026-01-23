@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: PMPL-1.0-or-later
 using Test
 using Causals
+using Causals.CausalDAG: add_edge!
 
 @testset "Causals.jl" begin
 
@@ -65,10 +66,10 @@ using Causals
     @testset "Causal DAG" begin
         # Create simple DAG: X → M → Y, C → X, C → Y
         g = CausalGraph([:X, :M, :Y, :C])
-        CausalDAG.add_edge!(g, :X, :M)
-        CausalDAG.add_edge!(g, :M, :Y)
-        CausalDAG.add_edge!(g, :C, :X)
-        CausalDAG.add_edge!(g, :C, :Y)
+        add_edge!(g, :X, :M)
+        add_edge!(g, :M, :Y)
+        add_edge!(g, :C, :X)
+        add_edge!(g, :C, :Y)
 
         # Test ancestors/descendants
         anc_y = ancestors(g, :Y)
