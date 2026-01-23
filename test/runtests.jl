@@ -65,10 +65,10 @@ using Causals
     @testset "Causal DAG" begin
         # Create simple DAG: X → M → Y, C → X, C → Y
         g = CausalGraph([:X, :M, :Y, :C])
-        add_edge!(g, :X, :M)
-        add_edge!(g, :M, :Y)
-        add_edge!(g, :C, :X)
-        add_edge!(g, :C, :Y)
+        Causals.add_edge!(g, :X, :M)
+        Causals.add_edge!(g, :M, :Y)
+        Causals.add_edge!(g, :C, :X)
+        Causals.add_edge!(g, :C, :Y)
 
         # Test ancestors/descendants
         anc_y = ancestors(g, :Y)
