@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: PMPL-1.0-or-later
 name = "Causals"
 uuid = "c4a8b6d2-f9e3-4c1a-b8d7-9f2e3c4d5e6f"
-authors = ["hyperpolymath"]
+authors = ["Jonathan D.A. Jewell <jonathan.jewell@open.ac.uk>"]
 version = "0.1.0"
 
 [deps]
