@@ -120,6 +120,8 @@ Check if Z satisfies the backdoor criterion for estimating effect of X on Y.
 
 Backdoor criterion: Z blocks all backdoor paths from X to Y AND
                      Z contains no descendants of X.
+
+A backdoor path is a path from X to Y that starts with an edge into X (X ← ...).
 """
 function backdoor_criterion(g::CausalGraph, X::Symbol, Y::Symbol, Z::Set{Symbol})
     # Check no descendants of X in Z
@@ -128,9 +130,50 @@ function backdoor_criterion(g::CausalGraph, X::Symbol, Y::Symbol, Z::Set{Symbol}
         return false
     end
 
-    # Check Z blocks all backdoor paths
-    # (Simplified - full implementation requires path enumeration)
-    true
+    # Check Z blocks all backdoor paths from X to Y
+    # A backdoor path starts with X ← ... (parent of X)
+    x_idx = g.name_to_index[X]
+    y_idx = g.name_to_index[Y]
+    z_indices = Set(g.name_to_index[z] for z in Z)
+
+    # Get parents of X (start of backdoor paths)
+    parents_x = inneighbors(g.graph, x_idx)
+
+    # For each parent of X, check if there's an unblocked path to Y
+    for parent in parents_x
+        if has_unblocked_path(g, parent, y_idx, z_indices, Set{Int}([x_idx]))
+            return false  # Found unblocked backdoor path
+        end
+    end
+
+    true  # All backdoor paths blocked
+end
+
+"""
+    has_unblocked_path(g, from, to, blocked, visited)
+
+Check if there's an unblocked path from `from` to `to` avoiding `blocked` nodes.
+Uses DFS to explore paths, treating blocked nodes as barriers.
+"""
+function has_unblocked_path(g::CausalGraph, from::Int, to::Int, blocked::Set{Int}, visited::Set{Int})
+    if from == to
+        return true
+    end
+
+    if from in visited || from in blocked
+        return false
+    end
+
+    push!(visited, from)
+
+    # Explore all neighbors (both parents and children for undirected path search)
+    for neighbor in union(inneighbors(g.graph, from), outneighbors(g.graph, from))
+        if has_unblocked_path(g, neighbor, to, blocked, copy(visited))
+            return true
+        end
+    end
+
+    false
 end
 
 """

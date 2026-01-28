@@ -207,9 +207,8 @@ using Causals.CausalDAG: add_edge!
         add_edge!(g_simple, :X, :Y)
         @test backdoor_criterion(g_simple, :X, :Y, Set{Symbol}())
 
-        # Test backdoor with insufficient adjustment set
-        # NOTE: backdoor_criterion has simplified implementation that doesn't check all paths yet
-        @test_skip !backdoor_criterion(g, :X, :Y, Set{Symbol}())
+        # Test backdoor with insufficient adjustment set (empty set should fail)
+        @test !backdoor_criterion(g, :X, :Y, Set{Symbol}())
 
         # Complex graph with multiple paths
         g_complex = CausalGraph([:A, :B, :C, :D, :E])
