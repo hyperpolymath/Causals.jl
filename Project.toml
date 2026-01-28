@@ -3,6 +3,7 @@ name = "Causals"
 uuid = "c4a8b6d2-f9e3-4c1a-b8d7-9f2e3c4d5e6f"
 authors = ["Jonathan D.A. Jewell <jonathan.jewell@open.ac.uk>"]
 version = "0.1.0"
+license = "PMPL-1.0-or-later"
 
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
