@@ -1,4 +1,4 @@
-image:https://img.shields.io/badge/license-PMPL--1.0-blue.svg[License,link="https://github.com/hyperpolymath/palimpsest-license"]
+image:https://img.shields.io/badge/License-PMPL--1.0-blue.svg[License: PMPL-1.0,link="https://github.com/hyperpolymath/palimpsest-license"]
 // SPDX-License-Identifier: PMPL-1.0-or-later
 = Causals.jl
 
@@ -154,10 +154,33 @@ println("Probability treatment was necessary: $(pn)")
 
 == Installation
 
+=== From Julia REPL
+[source,julia]
+----
+using Pkg
+Pkg.add("Causals")
+----
+
+=== From Git (Development)
 [source,julia]
 ----
 using Pkg
 Pkg.add(url="https://github.com/hyperpolymath/Causals.jl")
+----
+
+== Quick Start
+
+[source,julia]
+----
+using Causals
+
+# Combine evidence from multiple experts using Dempster-Shafer
+frame = [:A, :B, :C]
+expert1 = MassAssignment(frame, Dict(Set([:A]) => 0.6, Set([:A, :B, :C]) => 0.4))
+expert2 = MassAssignment(frame, Dict(Set([:A, :B]) => 0.7, Set([:A, :B, :C]) => 0.3))
+
+combined = combine_dempster(expert1, expert2)
+println(belief(combined, Set([:A])))  # Lower bound on probability of A
 ----
 
 == Documentation
