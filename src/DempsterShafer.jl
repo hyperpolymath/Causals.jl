@@ -100,6 +100,9 @@ function combine_dempster(m1::MassAssignment{T}, m2::MassAssignment{T}) where T
 
     conflict >= 1.0 && error("Total conflict: evidence contradictory")
 
+    if conflict >= 1.0 - 1e-10  # Use epsilon tolerance
+        throw(ArgumentError("Total conflict ($(conflict)): evidence is contradictory"))
+    end
     norm = 1.0 / (1.0 - conflict)
     MassAssignment(m1.frame, Dict(s => m * norm for (s, m) in combined))
 end
