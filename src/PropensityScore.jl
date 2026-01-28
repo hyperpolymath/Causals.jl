@@ -19,7 +19,7 @@ export stratification, doubly_robust
 Estimate propensity score: P(treatment=1 | covariates).
 Uses logistic regression (simplified implementation).
 """
-function propensity_score(treatment::Vector{Bool}, covariates::Matrix{Float64})
+function propensity_score(treatment::AbstractVector{Bool}, covariates::Matrix{Float64})
     # Logistic regression: log(p/(1-p)) = X*β
     # Simplified: use empirical frequencies by covariate bins
     n = length(treatment)
@@ -37,7 +37,7 @@ Propensity score matching: pair treated and control units.
 Returns (matched_indices, treatment_effect, std_error).
 """
 function matching(
-    treatment::Vector{Bool},
+    treatment::AbstractVector{Bool},
     outcome::Vector{Float64},
     propensity::Vector{Float64};
     method::Symbol = :nearest,
@@ -75,7 +75,7 @@ IPW estimator: weight by inverse propensity score.
 Returns (ATE, std_error).
 """
 function inverse_probability_weighting(
-    treatment::Vector{Bool},
+    treatment::AbstractVector{Bool},
     outcome::Vector{Float64},
     propensity::Vector{Float64}
 )
@@ -102,7 +102,7 @@ end
 Stratify by propensity score quintiles and estimate ATE.
 """
 function stratification(
-    treatment::Vector{Bool},
+    treatment::AbstractVector{Bool},
     outcome::Vector{Float64},
     propensity::Vector{Float64};
     n_strata::Int = 5
@@ -143,7 +143,7 @@ end
 Doubly robust estimator: consistent if either propensity or outcome model correct.
 """
 function doubly_robust(
-    treatment::Vector{Bool},
+    treatment::AbstractVector{Bool},
     outcome::Vector{Float64},
     propensity::Vector{Float64},
     outcome_model::Function  # outcome_model(covariates) → predicted outcome

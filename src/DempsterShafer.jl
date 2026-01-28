@@ -37,7 +37,8 @@ struct MassAssignment{T}
 
     function MassAssignment{T}(frame::Vector{T}, masses::Dict{Set{T}, Float64}) where T
         total = sum(values(masses))
-        if !isapprox(total, 1.0, atol=1e-10)
+        # Allow empty mass assignments as edge case
+        if !isempty(masses) && !isapprox(total, 1.0, atol=1e-10)
             error("Masses must sum to 1.0, got $(total)")
         end
 
@@ -63,7 +64,7 @@ mass(m::MassAssignment{T}, hypothesis::Set{T}) where T = get(m.masses, hypothesi
 Lower probability: sum of masses of all subsets.
 """
 function belief(m::MassAssignment{T}, hypothesis::Set{T}) where T
-    sum(mass_val for (s, mass_val) in m.masses if issubset(s, hypothesis))
+    sum(mass_val for (s, mass_val) in m.masses if issubset(s, hypothesis); init=0.0)
 end
 
 """
@@ -72,7 +73,7 @@ end
 Upper probability: sum of masses of all intersecting sets.
 """
 function plausibility(m::MassAssignment{T}, hypothesis::Set{T}) where T
-    sum(mass_val for (s, mass_val) in m.masses if !isempty(intersect(s, hypothesis)))
+    sum(mass_val for (s, mass_val) in m.masses if !isempty(intersect(s, hypothesis)); init=0.0)
 end
 
 uncertainty(m::MassAssignment{T}, hypothesis::Set{T}) where T =
