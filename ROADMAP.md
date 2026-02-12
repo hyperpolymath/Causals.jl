@@ -1,17 +1,17 @@
 # Causals.jl Development Roadmap
 
-## Current State (v1.0)
+## Current State (v0.2 Alpha)
 
-Production-ready implementation of 7 causal inference methods:
-- Dempster-Shafer Theory
-- Conditional Probability
-- Probabilistic Logic
-- Bayesian Networks
-- Fuzzy Logic
-- Evidential Reasoning
-- Belief Propagation
+In-development implementation of 7 causal inference modules:
+- **DempsterShafer**: Evidence combination (mostly complete)
+- **BradfordHill**: Causal criteria assessment (complete)
+- **CausalDAG**: Directed acyclic graphs (d-separation, backdoor, frontdoor criteria working)
+- **Granger**: Time series causality (complete with proper F-distribution)
+- **PropensityScore**: Observational study methods (propensity scores, matching, IPW, stratification, doubly robust all working)
+- **DoCalculus**: Interventional queries (do-intervention, effect identification, confounding adjustment, do-calculus rules implemented)
+- **Counterfactuals**: "What if" reasoning (counterfactual function with structural equations working)
 
-**Status:** Complete with comprehensive test coverage (66 tests), examples, and security hardening.
+**Status:** Alpha release with 105 passing tests, working examples, comprehensive documentation. All core algorithms implemented and verified.
 
 ---
 
@@ -22,7 +22,7 @@ Production-ready implementation of 7 causal inference methods:
 **MUST:**
 - [ ] **Performance benchmarking suite** - Baseline all 7 methods against synthetic datasets (10³, 10⁴, 10⁵ elements)
 - [ ] **Memoization for Dempster-Shafer** - Cache intermediate combination results to avoid recomputation
-- [ ] **Sparse matrix support in Bayesian Networks** - Use SparseArrays.jl for large conditional probability tables
+- [ ] **Sparse matrix support in Causal DAGs** - Use SparseArrays.jl for large conditional probability tables
 - [ ] **Progress indicators** - Add @showprogress for long-running computations (>1s expected runtime)
 - [ ] **Input validation helpers** - `validate_mass_function()`, `validate_cpt()` convenience functions
 
