@@ -7,7 +7,9 @@ interventions were different, given observations in the actual world.
 """
 module Counterfactuals
 
+using Graphs: inneighbors, outneighbors
 using ..CausalDAG
+using ..DoCalculus: do_intervention
 
 export counterfactual, twin_network, probability_of_necessity
 export probability_of_sufficiency, probability_of_necessity_and_sufficiency
@@ -24,7 +26,7 @@ struct Counterfactual
 end
 
 """
-    counterfactual(g, outcome, intervention, observations)
+    counterfactual(g, outcome, intervention, observations; equations=nothing)
 
 Evaluate counterfactual: what would outcome be under intervention,
 given observations in actual world?
@@ -33,24 +35,131 @@ Uses three-step process:
 1. Abduction: Infer unobserved variables U from observations
 2. Action: Apply intervention (mutilate graph)
 3. Prediction: Compute counterfactual outcome
+
+Requires `equations`: Dict{Symbol, Function} where each function has signature:
+    (parents::Dict{Symbol, Any}, noise::Dict{Symbol, Any}) -> value
 """
 function counterfactual(
     g::CausalGraph,
     outcome::Symbol,
-    intervention::Pair{Symbol, Any},
-    observations::Dict{Symbol, Any}
+    intervention::Pair,
+    observations::Dict;
+    equations::Union{Nothing, Dict{Symbol, Function}} = nothing
 )
-    # Step 1: Abduction - infer latent U from observations
-    # (Requires structural equations, not just graph)
-    U = Dict{Symbol, Any}()  # Placeholder
+    if equations === nothing
+        @warn "counterfactual requires structural equations to compute actual counterfactuals"
+        return nothing
+    end
 
-    # Step 2: Action - create mutilated graph
-    X, x = intervention
-    g_mutilated, _, _ = do_intervention(g, X, x)
+    X, x_value = intervention
 
-    # Step 3: Prediction - compute Y in counterfactual world
-    # (Requires evaluating structural equations forward)
-    nothing  # Placeholder - requires SCM with equations
+    # Step 1: Abduction - infer noise terms U from observations
+    # For each observed variable, solve equation backwards to get U
+    U = Dict{Symbol, Any}()
+
+    # Topological sort to process variables in order
+    topo_order = topological_sort_nodes(g)
+
+    for var in topo_order
+        if haskey(observations, var) && haskey(equations, var)
+            # Get parent values
+            var_idx = g.name_to_index[var]
+            parent_indices = inneighbors(g.graph, var_idx)
+            parent_dict = Dict{Symbol, Any}()
+
+            for p_idx in parent_indices
+                p_name = g.names[p_idx]
+                if haskey(observations, p_name)
+                    parent_dict[p_name] = observations[p_name]
+                else
+                    # Parent not observed, use 0 as default
+                    parent_dict[p_name] = 0.0
+                end
+            end
+
+            # Infer noise: U_var = observed_value - f(parents, empty_noise)
+            # Simplified approach: assume additive noise Y = f(parents) + U
+            # So U = Y - f(parents, {})
+            predicted = equations[var](parent_dict, Dict{Symbol, Any}())
+            # Store noise with U_ prefix convention
+            U[Symbol("U_", var)] = observations[var] - predicted
+        end
+    end
+
+    # Step 2: Action - apply intervention
+    # Create a new set of values with intervention applied
+    intervened_values = copy(observations)
+    intervened_values[X] = x_value
+
+    # Step 3: Prediction - compute counterfactual outcome
+    # Evaluate equations in topological order using inferred U
+    counterfactual_values = Dict{Symbol, Any}()
+
+    for var in topo_order
+        if var == X
+            # Intervention: set X to x_value
+            counterfactual_values[X] = x_value
+        elseif haskey(equations, var)
+            # Get parent values from counterfactual world
+            var_idx = g.name_to_index[var]
+            parent_indices = inneighbors(g.graph, var_idx)
+            parent_dict = Dict{Symbol, Any}()
+
+            for p_idx in parent_indices
+                p_name = g.names[p_idx]
+                if haskey(counterfactual_values, p_name)
+                    parent_dict[p_name] = counterfactual_values[p_name]
+                else
+                    parent_dict[p_name] = 0.0
+                end
+            end
+
+            # Evaluate equation with inferred noise
+            counterfactual_values[var] = equations[var](parent_dict, U)
+        end
+    end
+
+    # Return counterfactual value of outcome
+    get(counterfactual_values, outcome, nothing)
+end
+
+"""
+    topological_sort_nodes(g)
+
+Return nodes in topological order (parents before children).
+"""
+function topological_sort_nodes(g::CausalGraph)
+    n = length(g.names)
+    in_degree = zeros(Int, n)
+
+    # Compute in-degrees
+    for i in 1:n
+        in_degree[i] = length(inneighbors(g.graph, i))
+    end
+
+    # BFS-based topological sort
+    queue = Int[]
+    for i in 1:n
+        if in_degree[i] == 0
+            push!(queue, i)
+        end
+    end
+
+    result = Symbol[]
+
+    while !isempty(queue)
+        current = popfirst!(queue)
+        push!(result, g.names[current])
+
+        for neighbor in outneighbors(g.graph, current)
+            in_degree[neighbor] -= 1
+            if in_degree[neighbor] == 0
+                push!(queue, neighbor)
+            end
+        end
+    end
+
+    result
 end
 
 """
