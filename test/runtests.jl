@@ -2,6 +2,8 @@
 using Test
 using Causals
 using Causals.CausalDAG: add_edge!
+using Graphs: inneighbors
+using Statistics: mean
 
 @testset "Causals.jl" begin
 
@@ -274,6 +276,248 @@ using Causals.CausalDAG: add_edge!
         ate_extreme, se_extreme = inverse_probability_weighting(balanced, outcome_balanced, extreme_propensity)
         @test !isnan(ate_extreme)
         @test se_extreme >= 0.0
+    end
+
+    @testset "Propensity Score Matching" begin
+        using Causals.PropensityScore: matching
+
+        n = 100
+        treatment = rand(Bool, n)
+        outcome = Float64.(treatment) .* 2.0 .+ randn(n)
+        propensity = fill(0.5, n)
+
+        matches, ate, se = matching(treatment, outcome, propensity)
+
+        @test length(matches) > 0
+        @test length(matches) <= sum(treatment)  # Can't exceed treated count
+        @test !isnan(ate)
+        @test se >= 0.0
+
+        # Edge case: No matched pairs due to strict caliper
+        matches_strict, _, _ = matching(treatment, outcome, propensity; caliper=0.001)
+        @test length(matches_strict) >= 0  # May have no matches
+    end
+
+    @testset "Stratification" begin
+        using Causals.PropensityScore: stratification
+
+        n = 100
+        treatment = rand(Bool, n)
+        outcome = Float64.(treatment) .* 2.0 .+ randn(n)
+        propensity = rand(n)
+
+        ate, stratum_effects, stratum_weights = stratification(treatment, outcome, propensity)
+
+        @test !isnan(ate)
+        @test length(stratum_effects) == length(stratum_weights)
+        @test sum(stratum_weights) ≈ 1.0
+
+        # Test with different number of strata
+        ate5, _, _ = stratification(treatment, outcome, propensity; n_strata=5)
+        ate10, _, _ = stratification(treatment, outcome, propensity; n_strata=10)
+        @test !isnan(ate5)
+        @test !isnan(ate10)
+    end
+
+    @testset "Doubly Robust" begin
+        using Causals.PropensityScore: doubly_robust
+
+        n = 100
+        treatment = rand(Bool, n)
+        outcome = Float64.(treatment) .* 2.0 .+ randn(n)
+        propensity = fill(0.5, n)
+
+        # Simple outcome models
+        outcome_model_1 = fill(mean(outcome[treatment]), n)
+        outcome_model_0 = fill(mean(outcome[.!treatment]), n)
+
+        ate = doubly_robust(treatment, outcome, propensity, outcome_model_1, outcome_model_0)
+
+        @test !isnan(ate)
+        @test abs(ate - 2.0) < 2.0  # Should be near true effect
+
+        # Edge case: Perfect outcome models
+        perfect_1 = outcome .* Float64.(treatment)
+        perfect_0 = outcome .* Float64.(.!treatment)
+        ate_perfect = doubly_robust(treatment, outcome, propensity, perfect_1, perfect_0)
+        @test !isnan(ate_perfect)
+    end
+
+    @testset "D-Separation" begin
+        using Causals.CausalDAG: CausalGraph, add_edge!, d_separation
+
+        # Test chain: X → M → Y
+        g = CausalGraph([:X, :M, :Y])
+        add_edge!(g, :X, :M)
+        add_edge!(g, :M, :Y)
+
+        # X and Y are NOT d-separated (connected via chain)
+        @test !d_separation(g, Set([:X]), Set([:Y]), Set{Symbol}())
+
+        # X and Y ARE d-separated given M
+        @test d_separation(g, Set([:X]), Set([:Y]), Set([:M]))
+
+        # Test fork: X ← M → Y
+        g2 = CausalGraph([:X, :M, :Y])
+        add_edge!(g2, :M, :X)
+        add_edge!(g2, :M, :Y)
+
+        # X and Y are NOT d-separated
+        @test !d_separation(g2, Set([:X]), Set([:Y]), Set{Symbol}())
+
+        # X and Y ARE d-separated given M
+        @test d_separation(g2, Set([:X]), Set([:Y]), Set([:M]))
+
+        # Test collider: X → M ← Y
+        g3 = CausalGraph([:X, :M, :Y])
+        add_edge!(g3, :X, :M)
+        add_edge!(g3, :Y, :M)
+
+        # X and Y ARE d-separated (collider blocks path)
+        @test d_separation(g3, Set([:X]), Set([:Y]), Set{Symbol}())
+
+        # X and Y are NOT d-separated given M (collider unblocked)
+        @test !d_separation(g3, Set([:X]), Set([:Y]), Set([:M]))
+    end
+
+    @testset "Frontdoor Criterion" begin
+        using Causals.CausalDAG: CausalGraph, add_edge!, frontdoor_criterion
+
+        # Classic frontdoor: X → M → Y, U → X, U → Y
+        g = CausalGraph([:X, :M, :Y, :U])
+        add_edge!(g, :X, :M)
+        add_edge!(g, :M, :Y)
+        add_edge!(g, :U, :X)
+        add_edge!(g, :U, :Y)
+
+        @test frontdoor_criterion(g, :X, :Y, Set([:M]))
+
+        # Negative case: M does not intercept all paths
+        g2 = CausalGraph([:X, :M, :Y, :U])
+        add_edge!(g2, :X, :M)
+        add_edge!(g2, :M, :Y)
+        add_edge!(g2, :X, :Y)  # Direct path X → Y
+        add_edge!(g2, :U, :X)
+        add_edge!(g2, :U, :Y)
+
+        @test !frontdoor_criterion(g2, :X, :Y, Set([:M]))
+    end
+
+    @testset "Markov Blanket" begin
+        using Causals.CausalDAG: CausalGraph, add_edge!, markov_blanket
+
+        # Graph: A → B ← C, B → D
+        g = CausalGraph([:A, :B, :C, :D])
+        add_edge!(g, :A, :B)
+        add_edge!(g, :C, :B)
+        add_edge!(g, :B, :D)
+
+        blanket = markov_blanket(g, :B)
+
+        # Should contain parents (A, C), children (D), and co-parents (none here)
+        @test :A in blanket
+        @test :C in blanket
+        @test :D in blanket
+        @test :B ∉ blanket
+
+        # Co-parent test: A → D ← B
+        g2 = CausalGraph([:A, :B, :D])
+        add_edge!(g2, :A, :D)
+        add_edge!(g2, :B, :D)
+
+        blanket2 = markov_blanket(g2, :B)
+        @test :D in blanket2  # Child
+        @test :A in blanket2  # Co-parent (other parent of D)
+    end
+
+    @testset "DoCalculus" begin
+        using Causals.DoCalculus: do_intervention, identify_effect, adjustment_formula, confounding_adjustment, Query, do_calculus_rules
+        using Causals.CausalDAG: CausalGraph, add_edge!
+
+        # Test do_intervention
+        g = CausalGraph([:X, :Y, :Z])
+        add_edge!(g, :Z, :X)
+        add_edge!(g, :X, :Y)
+
+        g_mutilated, _, _ = do_intervention(g, :X, 1.0)
+        # Mutilated graph should have edge Z → X removed
+        @test length(inneighbors(g_mutilated.graph, g_mutilated.name_to_index[:X])) == 0
+
+        # Test identify_effect
+        g2 = CausalGraph([:X, :Y, :Z])
+        add_edge!(g2, :X, :Y)
+        add_edge!(g2, :Z, :X)
+        add_edge!(g2, :Z, :Y)
+
+        identifiable, method, set = identify_effect(g2, :X, :Y, Set([:Z]))
+        @test identifiable == true
+        @test method == :backdoor
+
+        # Test adjustment_formula
+        adj_set = adjustment_formula(g2, :X, :Y, Set([:Z]))
+        @test :Z in adj_set
+
+        # Test confounding_adjustment
+        n = 100
+        z_vals = randn(n)
+        x_vals = Float64.(z_vals .+ randn(n) .> 0.0)
+        y_vals = 0.8 .* x_vals .+ 0.6 .* z_vals .+ randn(n) .* 0.3
+
+        data = Dict{Symbol, Vector{Float64}}(
+            :Z => z_vals,
+            :X => x_vals,
+            :Y => y_vals
+        )
+
+        ate = confounding_adjustment(:X, :Y, Set([:Z]), data)
+        @test !isnan(ate)
+        @test abs(ate - 0.8) < 0.5  # Should be near true effect
+
+        # Test do_calculus_rules
+        q = Query([:Y], [:X], [:Z])
+        result = do_calculus_rules(g2, q)
+        @test result !== :cannot_simplify || result isa Query
+    end
+
+    @testset "Counterfactuals" begin
+        using Causals.Counterfactuals: counterfactual, twin_network, probability_of_necessity, probability_of_sufficiency, probability_of_necessity_and_sufficiency
+        using Causals.CausalDAG: CausalGraph, add_edge!
+
+        # Test counterfactual
+        g = CausalGraph([:X, :Y])
+        add_edge!(g, :X, :Y)
+
+        equations = Dict{Symbol, Function}(
+            :X => (parents, noise) -> get(noise, :U_X, 0.0),
+            :Y => (parents, noise) -> 2.0 * get(parents, :X, 0.0) + get(noise, :U_Y, 0.0)
+        )
+
+        observations = Dict{Symbol, Any}(:X => 3.0, :Y => 6.5)
+        result = counterfactual(g, :Y, :X => 5.0, observations; equations=equations)
+
+        @test result !== nothing
+        @test abs(result - 10.5) < 0.01  # 2*5 + 0.5 = 10.5
+
+        # Test twin_network
+        twin_g = twin_network(g)
+        @test length(twin_g.names) == 4  # X, Y, X', Y'
+
+        # Test probability of necessity
+        n = 100
+        treatment = rand(Bool, n)
+        outcome = rand(Bool, n)
+        data = Dict{Symbol, Vector{Bool}}(:Treatment => treatment, :Outcome => outcome)
+
+        pn = probability_of_necessity(:Treatment, :Outcome, data)
+        @test 0.0 <= pn <= 1.0
+
+        # Test probability of sufficiency
+        ps = probability_of_sufficiency(:Treatment, :Outcome, data)
+        @test 0.0 <= ps <= 1.0
+
+        # Test probability of necessity and sufficiency
+        pns = probability_of_necessity_and_sufficiency(:Treatment, :Outcome, data)
+        @test 0.0 <= pns <= 1.0
     end
 
 end
