@@ -9,6 +9,7 @@ module Granger
 
 using LinearAlgebra
 using Statistics
+using Distributions
 
 export granger_test, granger_causality, optimal_lag, bidirectional_granger
 
@@ -44,12 +45,13 @@ function granger_test(x::Vector{Float64}, y::Vector{Float64}, max_lag::Int=10; Î
     n_obs = length(y_unrestricted)
     F_stat = ((rss_restricted - rss_unrestricted) / k) / (rss_unrestricted / (n_obs - 2*best_lag - 1))
 
-    # Critical value (approximate with F-distribution)
-    # In practice, use Distributions.jl for proper p-value
-    critical_F = 3.0  # Rough approximation for Î±=0.05
-    p_value = F_stat > critical_F ? 0.01 : 0.1  # Simplified
+    # Compute p-value using proper F-distribution
+    df1 = k  # numerator degrees of freedom
+    df2 = n_obs - 2 * best_lag - 1  # denominator degrees of freedom
+    f_dist = FDist(df1, df2)
+    p_value = 1.0 - cdf(f_dist, F_stat)
 
-    causes = F_stat > critical_F
+    causes = p_value < 0.05  # Standard significance level
 
     (causes, F_stat, p_value, best_lag)
 end
