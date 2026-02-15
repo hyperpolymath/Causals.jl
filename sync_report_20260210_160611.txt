@@ -1,8 +1,0 @@
-remote: Bypassed rule violations for refs/heads/main:        
-remote: 
-remote: - Changes must be made through a pull request.        
-remote: 
-To github.com:hyperpolymath/Causals.jl.git
-   b7cb44d..585a74f  HEAD -> main
-branch 'main' set up to track 'origin/main'.
-  Successfully pushed to Causals.jl/
