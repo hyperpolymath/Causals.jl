@@ -1,4 +1,5 @@
-; SPDX-License-Identifier: PMPL-1.0-or-later
+; SPDX-License-Identifier: MPL-2.0
+; (PMPL-1.0-or-later preferred; MPL-2.0 required for Julia ecosystem)
 ; Causals.jl - Meta Information
 
 (meta
@@ -14,11 +15,11 @@
       (date "2026-02-12"))
 
     (decision
-      (title "PMPL-1.0-or-later license")
+      (title "MPL-2.0 license (Julia ecosystem fallback)")
       (status accepted)
-      (context "Use Palimpsest License for all original code")
-      (rationale "Aligns with hyperpolymath standards")
-      (date "2026-02-12")))
+      (context "Use MPL-2.0 as required by Julia/GNAT ecosystem; PMPL-1.0-or-later preferred")
+      (rationale "Julia ecosystem requires OSI-approved license")
+      (date "2026-03-14")))
 
   (development-practices
     "All exported functions must have docstrings"
