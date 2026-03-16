@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: PMPL-1.0-or-later
+# Clade declaration — part of the gv-clade-index registry
+# See: https://github.com/hyperpolymath/gv-clade-index
+
+[identity]
+uuid = "cad6d243-455a-59a1-bb37-08c382bff533"
+primary-forge = "github"
+primary-owner = "hyperpolymath"
+canonical-name = "Causals.jl"
+prefixed-name = "dx-Causals.jl"
+
+[clade]
+primary = "dx"
+secondary = []
+assigned = "2026-03-16"
+rationale = ""
+
+[forges]
+github = "hyperpolymath/Causals.jl"
+gitlab = "hyperpolymath/Causals.jl"
+bitbucket = "hyperpolymath/Causals.jl"
+
+[lineage]
+type = "standalone"
+parent = "Julia package — causal inference"
+born = "2026-03-16"
