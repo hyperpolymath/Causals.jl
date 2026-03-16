@@ -691,13 +691,13 @@ println("TASK 16 PASSED: ROADMAP is honest")
 
 **Files:** `/var/mnt/eclipse/repos/Causals.jl/docs/CITATIONS.adoc`
 
-**Problem:** The entire file is an unmodified RSR template. Line 1 says `= RSR-template-repo - Citation Guide`, line 8 says `rsr-template-repo_2025`, and line 14 references `AGPL-3.0-or-later` (banned license). All references point to `hyperpolymath/RSR-template-repo` instead of `hyperpolymath/Causals.jl`.
+**Problem:** The entire file is an unmodified RSR template. Line 1 says `= RSR-template-repo - Citation Guide`, line 8 says `rsr-template-repo_2025`, and line 14 references `PMPL-1.0-or-later` (banned license). All references point to `hyperpolymath/RSR-template-repo` instead of `hyperpolymath/Causals.jl`.
 
 **What to do:**
 
 1. Replace all occurrences of `RSR-template-repo` with `Causals.jl`.
 2. Replace `rsr-template-repo` with `causals_jl`.
-3. Replace `AGPL-3.0-or-later` with `PMPL-1.0-or-later`.
+3. Replace `PMPL-1.0-or-later` with `PMPL-1.0-or-later`.
 4. Replace `Polymath, Hyper` / `Hyper Polymath` with `Jewell, Jonathan D.A.` / `Jonathan D.A. Jewell`.
 5. Update the year to 2026 if applicable.
 6. Update URLs to point to `hyperpolymath/Causals.jl`.
