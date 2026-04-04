@@ -1,42 +1,196 @@
 // SPDX-License-Identifier: PMPL-1.0-or-later
+// Copyright (c) 2026 Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 = Causals.jl — Show Me The Receipts
 :toc:
+:toclevels: 3
 :icons: font
 
-The README makes claims. This file backs them up.
+The README makes claims. This file backs them up with specific code locations,
+honest caveats, and enough detail for an external reviewer to orient themselves.
 
-[quote, README]
-____
-Causals.jl brings together the major approaches to causal reasoning under one roof:
-____
+== README Claims — Verified
 
-== Technology Choices
+=== Claim 1: "Causals.jl eclipses existing Julia causal packages with complete coverage"
 
-[cols="1,2"]
-|===
-| Technology | Learn More
+*Partially true.* The README lists seven causal methods absent from any single
+competing package. All seven are implemented as sub-modules:
+`DempsterShafer`, `BradfordHill`, `CausalDAG`, `Granger`, `PropensityScore`,
+`DoCalculus`, `Counterfactuals` — each a separate `.jl` file under `src/` and
+re-exported from `src/Causals.jl`.
 
-| **Zig** | https://ziglang.org
-| **Julia** | https://julialang.org
-| **Idris2 ABI** | https://www.idris-lang.org
-|===
+The package also ships `AIE.jl` (Applied Information Economics —
+`evoi`, `reduce_uncertainty`), `ConsensusEngine.jl` (automated inference
+consensus reporting), `CognitiveCausality.jl` (Sloman-inspired explanatory
+depth scoring), and `Mediation.jl` (natural direct/indirect effects) — none of
+which appear in competing packages.
+
+*Caveat:* The README status section reads "Alpha — Core implementations complete,
+pending extensive testing and validation against reference implementations."
+Correctness of numerical outputs (e.g., Granger F-statistics, propensity
+score matching ATEs) should be validated against R `lmtest`/`MatchIt`
+before use in research pipelines.
+
+=== Claim 2: "Bradford Hill criteria — 9-criterion causal assessment"
+
+*True.* `src/BradfordHill.jl` defines `BradfordHillCriteria` with exactly nine
+named fields: `strength`, `consistency`, `specificity`, `temporality`,
+`biological_gradient`, `plausibility`, `coherence`, `experiment`, `analogy`.
+`assess_causality/1` returns a `(verdict::Symbol, confidence::Float64)` pair.
+The `temporality` criterion is documented as required: a zero value prevents a
+`:strong` verdict regardless of other scores.
+
+*Caveat:* The internal weighting scheme in `assess_causality` encodes opinionated
+domain knowledge. Reviewers should inspect `BradfordHill.jl` before applying
+this to epidemiological research.
+
+=== Claim 3: "Dempster-Shafer — combine uncertain evidence from multiple experts"
+
+*True.* `src/DempsterShafer.jl` implements `MassAssignment`, `combine_dempster`,
+`belief`, `plausibility`, and `discount`. The test suite verifies that
+`belief(m, A) <= plausibility(m, A)` holds for all subsets, that combination
+preserves normalisation to 1.0, and that edge cases (empty frame, full discount,
+conflicting evidence) are handled without exceptions.
+
+== How It Works
+
+`src/Causals.jl` is a thin module aggregator. It includes sub-modules in
+dependency order, then re-exports a flat public API:
+
+. `backends/abstract.jl` — AcceleratorGate dispatch stub
+. `CausalDAG` — graph primitives (Graphs.jl DiGraph wrapper; required by DoCalculus)
+. `DoCalculus`, `Counterfactuals`, `Mediation`, `AIE`, `ConsensusEngine`,
+  `CognitiveCausality` — Pearl-framework layers, loaded in dependency order
+. `DempsterShafer`, `BradfordHill`, `Granger`, `PropensityScore` — orthogonal
+  statistical methods with no cross-module dependencies
+
+Each sub-module is a standalone Julia `module` and can be addressed directly as
+`using Causals.Granger` if only partial functionality is needed. GPU dispatch
+of computationally intensive operations (bootstrap resampling, MCMC) is wired
+through the account-wide AcceleratorGate pattern via `backends/abstract.jl`.
+
+== Honest Caveats
+
+* Status is alpha. The README "Production docs" claim refers to aspirational
+  goals; the hosted documentation site contains generated stubs, not tutorials.
+* `src/ModularMath.jl` is present in `src/` but is not included in the root
+  module; it is either unused or work-in-progress.
+* Granger causality requires the caller to supply `max_lag`; no automatic
+  AIC/BIC lag-order selection is provided.
+* PropensityScore matching uses nearest-neighbour with caliper only; optimal
+  full matching and genetic matching are not implemented.
 
 == Dogfooded Across The Account
 
-Uses the hyperpolymath ABI/FFI standard (Idris2 + Zig). Same pattern used across
-https://github.com/hyperpolymath/proven[proven],
-https://github.com/hyperpolymath/burble[burble], and
-https://github.com/hyperpolymath/gossamer[gossamer].
+[cols="2,3"]
+|===
+| Where | How Causals is relevant
+
+| https://github.com/hyperpolymath/developer-ecosystem[developer-ecosystem]
+  `julia-ecosystem/`
+| The Julia ecosystem bootstrap uses Causals.jl as a reference for
+  RSR-compliant multi-module Julia package layout (includes sub-modules,
+  backends/, contractiles/, property tests).
+
+| https://github.com/hyperpolymath/statistease[statistease]
+| Statistease provides the regression and time-series primitives that
+  Causals.jl's Granger and PropensityScore modules depend on conceptually;
+  they are complementary pipelines, not redundant.
+
+| https://github.com/hyperpolymath/InvestigativeJournalist.jl[InvestigativeJournalist.jl]
+| IJ's `test_causal_pathway` export uses Bradford Hill criterion checks
+  (`assess_causality`) for assessing causal claims in investigative stories.
+
+| https://github.com/hyperpolymath/BowtieRisk.jl[BowtieRisk.jl]
+| Granger test outputs and propensity score ATEs can calibrate threat
+  probability estimates feeding into BowtieRisk bow-tie models.
+
+| https://github.com/hyperpolymath/hypatia[hypatia]
+| Hypatia CI scans Causals.jl for SPDX compliance and RSR antipatterns on
+  every push.
+|===
 
 == File Map
 
-[cols="1,2"]
+[cols="2,3"]
 |===
-| Path | What's There
+| Path | What is There
 
-| `src/` | Source code
-| `ffi/` | Foreign function interface
-| `test(s)/` | Test suite
+| `src/Causals.jl`
+| Root module. Includes all sub-modules in load order; re-exports 36 public
+  names spanning all seven causal frameworks plus AIE, ConsensusEngine,
+  CognitiveCausality, and Mediation.
+
+| `src/CausalDAG.jl`
+| `CausalGraph` (wraps `Graphs.DiGraph`), `add_edge!`, `d_separation` (Bayes
+  Ball algorithm), `backdoor_criterion`.
+
+| `src/DoCalculus.jl`
+| Pearl's do-calculus: `do_intervention`, `identify_effect`, `Query` type.
+
+| `src/Counterfactuals.jl`
+| Twin-network counterfactual queries: `counterfactual_query`,
+  `probability_of_necessity`, `probability_of_sufficiency`.
+
+| `src/Mediation.jl`
+| Natural direct and indirect effects: `natural_direct_effect`,
+  `natural_indirect_effect`.
+
+| `src/AIE.jl`
+| Applied Information Economics: `evoi` (expected value of information),
+  `reduce_uncertainty`.
+
+| `src/ConsensusEngine.jl`
+| Automated inference consensus across methods: `causal_consensus`,
+  `ConsensusReport`.
+
+| `src/CognitiveCausality.jl`
+| Sloman-inspired cognitive causality: `score_explanatory_depth`,
+  `predict_intervention_effect`.
+
+| `src/DempsterShafer.jl`
+| Belief functions: `MassAssignment`, `combine_dempster`, `belief`,
+  `plausibility`, `discount`. Handles conflicting evidence normalisation.
+
+| `src/BradfordHill.jl`
+| 9-criterion epidemiological causality assessment: `BradfordHillCriteria`,
+  `assess_causality`.
+
+| `src/Granger.jl`
+| Granger causality for time series: `granger_test` returns
+  `(causes::Bool, F_stat, p_value, optimal_lag)`.
+
+| `src/PropensityScore.jl`
+| Observational study adjustment: `propensity_score`, `matching`
+  (nearest-neighbour with caliper; returns ATE and standard error).
+
+| `src/ModularMath.jl`
+| Mathematical utility helpers (not included in root module; likely WIP).
+
+| `src/backends/abstract.jl`
+| AcceleratorGate coprocessor-dispatch hook for GPU backend extensions.
+
+| `test/runtests.jl`
+| Comprehensive testset covering all eleven sub-modules. Dempster-Shafer
+  tests verify combination, discounting, edge-case empty frames, and the
+  belief ≤ plausibility invariant. DAG tests verify d-separation and backdoor
+  criterion on a named income/education/ability graph.
+
+| `test/e2e_test.jl`
+| End-to-end pipeline tests: DAG construction → do-intervention →
+  propensity score matching in a single workflow.
+
+| `test/property_test.jl`
+| Property-based invariant tests (belief bounds, probability normalisation,
+  ATE confidence intervals).
+
+| `benches/benchmarks.jl`
+| BenchmarkTools suite for Dempster-Shafer combination, Granger test,
+  and propensity score matching at realistic data sizes.
+
+| `Project.toml`
+| Name `Causals`, v0.2.0, MPL-2.0 (PMPL-1.0-or-later preferred; MPL-2.0
+  required for Julia registry). Deps: `AcceleratorGate`, `LinearAlgebra`,
+  `Statistics`, `Distributions`, `Graphs`, `StatsBase`.
 |===
 
 == Questions?
