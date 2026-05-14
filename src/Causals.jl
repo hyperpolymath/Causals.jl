@@ -29,12 +29,13 @@ include("DoCalculus.jl")
 include("Counterfactuals.jl")
 include("Mediation.jl")
 include("AIE.jl")
-include("ConsensusEngine.jl")
-include("CognitiveCausality.jl") # Sloman-inspired
-include("DempsterShafer.jl")
 include("BradfordHill.jl")
 include("Granger.jl")
+include("ConsensusEngine.jl") # consumes ..Granger, ..BradfordHill, ..Counterfactuals
+include("CognitiveCausality.jl") # Sloman-inspired
+include("DempsterShafer.jl")
 include("PropensityScore.jl")
+include("ModularMath.jl")
 
 using .CausalDAG
 using .DoCalculus
@@ -49,16 +50,17 @@ using .Granger
 using .PropensityScore
 
 # Re-export key operations
-export CausalGraph, add_edge!, d_separation, backdoor_criterion
+export CausalGraph, add_edge!, remove_edge!, ancestors, descendants
+export d_separation, backdoor_criterion
 export do_intervention, identify_effect, Query
 export counterfactual_query, probability_of_necessity, probability_of_sufficiency
 export natural_direct_effect, natural_indirect_effect
 export evoi, reduce_uncertainty # AIE: Applied Information Economics
 export causal_consensus, ConsensusReport # Automated Inference Engine
 export score_explanatory_depth, predict_intervention_effect # Sloman-inspired
-export MassAssignment, combine_dempster, belief, plausibility
+export MassAssignment, combine_dempster, belief, plausibility, mass, discount
 export BradfordHillCriteria, assess_causality
-export granger_test
-export propensity_score, matching
+export granger_test, granger_causality
+export propensity_score, matching, inverse_probability_weighting
 
 end # module Causals
