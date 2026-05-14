@@ -29,11 +29,11 @@ include("DoCalculus.jl")
 include("Counterfactuals.jl")
 include("Mediation.jl")
 include("AIE.jl")
-include("ConsensusEngine.jl")
-include("CognitiveCausality.jl") # Sloman-inspired
-include("DempsterShafer.jl")
 include("BradfordHill.jl")
 include("Granger.jl")
+include("ConsensusEngine.jl") # consumes ..Granger, ..BradfordHill, ..Counterfactuals
+include("CognitiveCausality.jl") # Sloman-inspired
+include("DempsterShafer.jl")
 include("PropensityScore.jl")
 
 using .CausalDAG
