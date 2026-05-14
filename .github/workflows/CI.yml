@@ -33,6 +33,13 @@ jobs:
       - name: Cache Julia artifacts
         uses: julia-actions/cache@d10a6fd8f31b12404a54613ebad242900567f2b9 # v2
 
+      - name: Install hyperpolymath-internal Julia deps from git
+        # AcceleratorGate.jl is hyperpolymath-internal and not in any
+        # Julia registry. Without adding it by URL, Pkg.instantiate
+        # later fails with 'is a direct dependency, but does not appear
+        # in the manifest'.
+        run: julia --project=. -e 'using Pkg; Pkg.add(Pkg.PackageSpec(url="https://github.com/hyperpolymath/AcceleratorGate.jl"))'
+
       - name: Build package
         uses: julia-actions/julia-buildpkg@90dd6f23eb49626e4e6612cb9d64d456f86e6a1c # v1
 
