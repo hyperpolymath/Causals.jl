@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: PMPL-1.0-or-later
+// SPDX-License-Identifier: MPL-2.0
 // SPDX-FileCopyrightText: 2025-2026 Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 
 = Causals.jl
@@ -294,7 +294,7 @@ See link:CONTRIBUTING.md[CONTRIBUTING.md] for development guidelines.
 
 == License
 
-Palimpsest-MPL License v1.0 (PMPL-1.0-or-later) - see link:LICENSE[LICENSE].
+Palimpsest-MPL License v1.0 (MPL-2.0) - see link:LICENSE[LICENSE].
 
 PMPL-1.0 is MPL-2.0 compatible and accepted by Julia General registry.
 

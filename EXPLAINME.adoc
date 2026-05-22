@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: PMPL-1.0-or-later
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2026 Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 = Causals.jl — Show Me The Receipts
 :toc:
@@ -188,7 +188,7 @@ through the account-wide AcceleratorGate pattern via `backends/abstract.jl`.
   and propensity score matching at realistic data sizes.
 
 | `Project.toml`
-| Name `Causals`, v0.2.0, MPL-2.0 (PMPL-1.0-or-later preferred; MPL-2.0
+| Name `Causals`, v0.2.0, MPL-2.0 (MPL-2.0 preferred; MPL-2.0
   required for Julia registry). Deps: `AcceleratorGate`, `LinearAlgebra`,
   `Statistics`, `Distributions`, `Graphs`, `StatsBase`.
 |===
