@@ -1,3 +1,7 @@
+<!--
+SPDX-License-Identifier: MPL-2.0
+Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+-->
 # Bradford Hill Criteria
 
 The Bradford Hill module provides systematic assessment of causal relationships using the nine Bradford Hill criteria.

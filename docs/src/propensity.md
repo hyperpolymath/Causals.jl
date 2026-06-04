@@ -1,3 +1,7 @@
+<!--
+SPDX-License-Identifier: MPL-2.0
+Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+-->
 # Propensity Score Methods
 
 The PropensityScore module provides methods for causal inference from observational data using propensity scores.
