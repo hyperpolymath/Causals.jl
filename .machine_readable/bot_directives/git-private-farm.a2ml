@@ -23,7 +23,7 @@ action = "peter-evans/repository-dispatch@v3"   # SHA-pinned (28959ce8) in the w
 target = "hyperpolymath/.git-private-farm"
 event-type = "propagate"
 secret-name = "FARM_DISPATCH_TOKEN"              # secret NAME only; value lives in repo secrets
-presence-gated = true                            # the Trigger Propagation step is gated on `secrets.FARM_DISPATCH_TOKEN != ''` (added 2026-06-14)
+presence-gated = true                            # Trigger Propagation step gated on env.FARM_DISPATCH_TOKEN != '' (job-level env mapped from the secret; the `secrets` context is invalid inside `if:`)
 
 [never-propagate]
 items = [
