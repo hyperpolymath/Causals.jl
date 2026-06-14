@@ -6,7 +6,13 @@ version = "0.2.0"
 license = "MPL-2.0"
 
 [deps]
-AcceleratorGate = "59f742c7-270d-4a76-95d4-a853ae16cc71"
+# AcceleratorGate (placeholder UUID 59f742c7) removed 2026-06-14: it is an
+# unregistered package not in the Julia General registry and made
+# Pkg.instantiate() fail. The src/backends/abstract.jl shim that imported it is
+# no longer included by src/Causals.jl, and the package core does not reference
+# the backend layer. The optional GPU extensions still reference it and load
+# only when a real accelerator package supplies those symbols (never in the
+# Test-only CI target). Mirrors the sibling .jl dependency-hygiene fix.
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
@@ -25,7 +31,6 @@ CausalsMetalExt = ["Metal", "KernelAbstractions"]
 CausalsROCmExt = ["AMDGPU", "KernelAbstractions"]
 
 [compat]
-AcceleratorGate = "0.1"
 julia = "1.10"
 Distributions = "0.25"
 Graphs = "1"
