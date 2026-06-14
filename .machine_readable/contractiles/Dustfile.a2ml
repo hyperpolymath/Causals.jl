@@ -1,0 +1,75 @@
+# SPDX-License-Identifier: MPL-2.0
+# Dustfile.a2ml — cleanup, hygiene & recovery contract for Causals.jl
+#
+# Format: TOML-A2ML (parses with tomllib; `#` comments, [section], key = "value")
+#
+# Provenance: flat-contractile completion of the estate layout. The 2026-06-11
+# estate base wave supplied no flat Dustfile, and Causals.jl missed the
+# 2026-06-13 conformance pass that added one to its sibling .jl packages.
+# Added 2026-06-14.
+
+[dustfile]
+name = "Causals.jl-dustfile"
+project = "Causals.jl"
+schema_version = "1.0"
+version = "1.0.0"
+format = "a2ml"
+repo = "Causals.jl"
+last-updated = "2026-06-14"
+
+# ============================================================
+# Recovery & rollback tasks
+# ============================================================
+
+[[tasks]]
+name = "source-rollback"
+doc = "Revert all uncommitted source changes to last commit."
+tag = "rollback"
+cmd = "git checkout HEAD -- ."
+
+[[tasks]]
+name = "clean-build"
+doc = "Remove Julia and Zig build artifacts. NOTE: does NOT touch Manifest.toml — see [cleanup]; it is currently git-tracked, so deleting it would be a source change, not a clean."
+tag = "clean"
+cmd = "rm -rf docs/build ffi/zig/.zig-cache ffi/zig/zig-out"
+
+[[tasks]]
+name = "rebuild"
+doc = "Cold rebuild + full test."
+tag = "verify"
+cmd = "julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.test()'"
+
+# ============================================================
+# Cleanup policy
+# ============================================================
+
+[cleanup]
+build-artifacts = "docs/build/ (Documenter output, if built), ffi/zig/.zig-cache/, ffi/zig/zig-out/; all generated and safe to delete"
+generated-dirs = "docs/build/ is generated output"
+manifest-note = "DRIFT: Manifest.toml is git-TRACKED yet also listed in .gitignore (/Manifest.toml). It is therefore NOT safe to delete as a cleanup step (that would stage a tracked-file deletion). For a Julia library the manifest is usually untracked; resolving the tracked-vs-ignored contradiction (git rm --cached, or removing the .gitignore line) is a maintainer decision tracked in STATE.a2ml [known-issues], not a Dustfile cleanup action."
+stale-branch-policy = "session/* and claude/* branches are dispositioned (landing / superseded / abandoned) at checkpoint; bots never delete branches"
+artifact-retention = "not-applicable"
+artifact-retention-reason = "Causals.jl is a Julia library; no long-lived build artifacts are published"
+cache-policy = "CI caches the Julia depot; invalidation follows the workflow definitions"
+
+# ============================================================
+# Hygiene
+# ============================================================
+
+[hygiene]
+code-hygiene = "Julia source follows stdlib style; no @warn/@error suppressed; SPDX headers on all files"
+ffi-hygiene = "Zig FFI layer (ffi/zig/) is ABI-stable per ABI-FFI-README.md; no unsafety beyond the documented C-compatible boundary"
+dead-code-rule = "unused exports are removed before release; no silently-dead testsets"
+todo-tracking = "repo-wide TODOs go to GitHub issues; inline TODOs are scoped to a tracked issue"
+linting = "Julia: no linter enforced yet (advisory: JET.jl or Aqua.jl static analysis)"
+formatting = "Julia: JuliaFormatter.jl style (not yet enforced in CI)"
+
+# ============================================================
+# Reversibility
+# ============================================================
+
+[reversibility]
+backup-before-destructive = true
+rollback-mechanism = "git-revert (main is append-only; superseded docs get banners, not deletion)"
+data-retention-policy = "not-applicable"
+data-retention-reason = "Causals.jl holds no runtime data under version control"

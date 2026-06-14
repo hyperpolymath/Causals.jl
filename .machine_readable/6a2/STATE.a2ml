@@ -1,14 +1,52 @@
 # SPDX-License-Identifier: MPL-2.0
 # STATE.a2ml — Project state checkpoint
 # Converted from STATE.scm on 2026-03-15
+# Refreshed: 2026-06-14 (governance conformance — close the 2026-06-13 estate
+#            standardization gap Causals.jl missed; STATE currency was stale at
+#            2026-03-15 with version 0.1.0 / completion-percentage 0, which
+#            contradicted both the working src/ (13 modules + 3 test suites +
+#            full CI) and the Project.toml version 0.2.0.)
 
 [metadata]
 project = "Causals.jl"
-version = "0.1.0"
-last-updated = "2026-03-15"
+version = "0.2.0"
+last-updated = "2026-06-14"
 status = "active"
 
 [project-context]
 name = "Causals.jl"
-completion-percentage = 0
-phase = "In development"
+completion-percentage = 70   # core causal-inference surface (DAG/do-calculus/counterfactuals/mediation/Granger/Bradford-Hill/Dempster-Shafer/propensity) implemented with a 3-file test suite and full CI; pre-1.0 (v0.2.0)
+phase = "Pre-1.0 library; core causal-inference surface implemented, ongoing feature additions"
+
+[build]
+language = "Julia"
+minimum-julia = "1.10"       # Project.toml [compat] julia = "1.10"
+test-command = "julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.test()'"
+test-files = 3               # test/{runtests,property_test,e2e_test}.jl
+ffi-layer = "ffi/zig/ (Zig FFI implementing the Idris2 ABI; ABI-FFI-README.md)"
+
+[components]
+core-source = "src/Causals.jl"
+modules = "src/{CausalDAG,DoCalculus,Counterfactuals,Mediation,AIE,BradfordHill,Granger,ConsensusEngine,CognitiveCausality,DempsterShafer,PropensityScore,ModularMath}.jl; src/backends/abstract.jl (reference stub, no longer included)"
+extensions = "ext/ (3 weak-dep GPU extensions: CausalsCUDAExt / CausalsMetalExt / CausalsROCmExt)"
+abi-contract = "ABI-FFI-README.md"
+docs = "docs/"
+
+[known-issues]
+issues = [
+  "RESOLVED 2026-06-14: AcceleratorGate (placeholder UUID 59f742c7) removed from Project.toml [deps]/[compat]; it was unregistered (not in Julia General) and failed Pkg.instantiate(). The src/backends/abstract.jl shim that imported it is no longer included by src/Causals.jl (the package core never referenced the backend layer), so the include is dropped rather than stubbed. Mirrors the sibling .jl 2026-06-13 fix; src/backends/abstract.jl is kept as a reference stub.",
+  "DRIFT (flagged 2026-06-14, NOT fixed here): Manifest.toml is git-TRACKED yet also listed in .gitignore (/Manifest.toml). For a Julia library the manifest is normally untracked; the .gitignore entry suggests an intent to untrack that was never completed with `git rm --cached`. Left for a maintainer decision (it affects reproducibility expectations); not changed in this conformance PR.",
+  ".machine_readable/contractiles/Mustfile.a2ml header still reads 'rsr-template-repo' (template residue, same as the sibling .jl packages); flagged for a separate estate-wide de-branding pass.",
+]
+
+[maintenance-status]
+last-run-utc = "2026-06-14T00:00:00Z"
+last-result = "unknown"  # unknown | pass | warn | fail — no Julia toolchain locally (installer is proxy-blocked); verification is via the repo's own multi-platform CI on the PR
+# 2026-06-14 conformance pass — closes the 2026-06-13 estate wave that
+# Causals.jl missed (it received the codeql `actions` fix but not the rest):
+#   * bot_directives trio (hypatia / gitbot-fleet / git-private-farm) + flat
+#     contractiles Bustfile / Dustfile
+#   * Project.toml: drop unregistered AcceleratorGate (fixes Pkg.instantiate)
+#   * src/Causals.jl: drop the AcceleratorGate-importing backend include
+#   * instant-sync.yml: secret presence gate on FARM_DISPATCH_TOKEN
+#   * mirror.yml: secret presence gates on all 7 forge mirror jobs

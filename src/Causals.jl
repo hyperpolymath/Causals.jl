@@ -23,7 +23,14 @@ d_separation(g, :X, :Z, [:Y])
 """
 module Causals
 
-include("backends/abstract.jl")
+# NOTE: include("backends/abstract.jl") removed 2026-06-14. That shim did
+# `using AcceleratorGate`, an unregistered placeholder package removed from
+# Project.toml; including it unconditionally broke precompilation. The package
+# core does not reference the backend dispatch layer, so the include is dropped
+# rather than stubbed (mirrors the sibling .jl fix). src/backends/abstract.jl is
+# retained as a reference stub; the optional GPU extensions consume it only when
+# a real accelerator package is present, which never happens in the Test-only
+# CI target.
 include("CausalDAG.jl")
 include("DoCalculus.jl")
 include("Counterfactuals.jl")

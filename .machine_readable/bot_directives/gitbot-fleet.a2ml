@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: MPL-2.0
+# gitbot-fleet.a2ml — gitbot fleet directives for Causals.jl.
+# Net-new completion of the estate bot_directives standard. Fleet roster taken
+# from the repo's existing bot_directives files (.machine_readable/bot_directives/).
+# Causals.jl missed the 2026-06-13 conformance pass that added this file to its
+# sibling .jl packages; added 2026-06-14 to restore parity.
+
+[metadata]
+name = "Causals.jl-gitbot-fleet"
+project = "Causals.jl"
+schema_version = "1.0"
+repo = "Causals.jl"
+last-updated = "2026-06-14"
+owner = "hyperpolymath"
+
+[fleet]
+bots = []
+# No per-bot directive files detected in bot_directives/ as of 2026-06-14
+# beyond the estate methodology/coverage/debt files (which are agent-instruction
+# methodology, not per-bot directives). Add bot names here when bots are
+# onboarded to this repo.
+
+[branch-policy]
+working-branch-pattern = "claude/<slug>"     # human sessions use claude/<slug>; bots use their own prefix when onboarded
+draft-PRs-only = true
+ci-green-before-merge = true
+never-touch = [
+  "src/Causals.jl",              # main Julia module — semantic authority
+  "ffi/zig/",                    # Zig FFI ABI
+  "ABI-FFI-README.md",           # ABI contract
+  ".github/workflows/",          # CI hardening is review-gated, not bot-edited
+]
