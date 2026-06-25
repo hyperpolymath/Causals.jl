@@ -1,59 +1,66 @@
-[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github)](https://github.com/sponsors/hyperpolymath)
+<!--
+SPDX-License-Identifier: CC-BY-SA-4.0
+SPDX-FileCopyrightText: 2025-2026 Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+-->
 
-// SPDX-License-Identifier: CC-BY-SA-4.0
-// SPDX-FileCopyrightText: 2025-2026 Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+[![OpenSSF Best Practices](https://img.shields.io/badge/OpenSSF-Best_Practices-green?logo=opensourcesecurity)](https://www.bestpractices.dev/en/projects/new?repo_url=https://github.com/hyperpolymath/Causals.jl)
+[![License: MPL-2.0](https://img.shields.io/badge/License-MPL--2.0-blue.svg)](https://www.mozilla.org/MPL/2.0/)
+<embed
+src="https://api.thegreenwebfoundation.org/greencheckimage/github.com"
+data-link="https://www.thegreenwebfoundation.org/green-web-check/?url=github.com" />
 
-= Causals.jl
+<div class="lead" wrapper="1">
 
-image:https://img.shields.io/badge/OpenSSF-Best_Practices-green?logo=opensourcesecurity[OpenSSF Best Practices,link="https://www.bestpractices.dev/en/projects/new?repo_url=https://github.com/hyperpolymath/Causals.jl"]
-image:https://img.shields.io/badge/License-MPL--2.0-blue.svg[License: PMPL-1.0,link="https://github.com/hyperpolymath/palimpsest-license"]
-image:https://api.thegreenwebfoundation.org/greencheckimage/github.com[Green Web,link="https://www.thegreenwebfoundation.org/green-web-check/?url=github.com"]
+**Comprehensive causal inference toolkit for Julia - Eclipse all
+existing causal packages with unified, production-grade
+implementations.**
 
-:toc: macro
-:toclevels: 2
-:icons: font
-:source-highlighter: rouge
+</div>
 
-[.lead]
-*Comprehensive causal inference toolkit for Julia - Eclipse all existing causal packages with unified, production-grade implementations.*
+[![Topology](https://img.shields.io/badge/Project-Topology-9558B2)](TOPOLOGY.md)
+[![95](https://img.shields.io/badge/Completion-95%25-green)](TOPOLOGY.md)
 
-image:https://img.shields.io/badge/Project-Topology-9558B2[Topology,link="TOPOLOGY.md"]
-image:https://img.shields.io/badge/Completion-95%25-green[95%,link="TOPOLOGY.md"]
+<div id="toc">
 
-toc::[]
+</div>
 
-== What is Causals.jl?
+# What is Causals.jl?
 
-Causals.jl brings together the major approaches to causal reasoning under one roof:
+Causals.jl brings together the major approaches to causal reasoning
+under one roof:
 
-* **Dempster-Shafer theory** - combine uncertain evidence from multiple experts
-* **Bradford Hill criteria** - assess causality in observational studies
-* **Causal DAGs** - graphical models, d-separation, identification
-* **Granger causality** - time series causal analysis
-* **Propensity scores** - matching, weighting, stratification for observational data
-* **Do-calculus** - Pearl's intervention framework
-* **Counterfactuals** - "what if" reasoning about alternate realities
+- **Dempster-Shafer theory** - combine uncertain evidence from multiple
+  experts
 
-== Why Causals.jl?
+- **Bradford Hill criteria** - assess causality in observational studies
 
-**Existing Julia packages are fragmented:**
-- `CausalInference.jl` - only DAGs
-- `Causal.jl` - simulation only
-- `CausalityTools.jl` - basic stats only
+- **Causal DAGs** - graphical models, d-separation, identification
 
-**Causals.jl eclipses them with:**
-- Complete coverage of causal inference methods
-- Production-grade implementations
-- Comprehensive documentation
-- Active development
-- RSR compliance (Rust/Deno standards adapted for Julia)
+- **Granger causality** - time series causal analysis
 
-== Quick Examples
+- **Propensity scores** - matching, weighting, stratification for
+  observational data
 
-=== Dempster-Shafer Evidence Combination
+- **Do-calculus** - Pearl’s intervention framework
 
-[source,julia]
-----
+- **Counterfactuals** - "what if" reasoning about alternate realities
+
+# Why Causals.jl?
+
+**Existing Julia packages are fragmented:** - `CausalInference.jl` -
+only DAGs - `Causal.jl` - simulation only - `CausalityTools.jl` - basic
+stats only
+
+**Causals.jl eclipses them with:** - Complete coverage of causal
+inference methods - Production-grade implementations - Comprehensive
+documentation - Active development - RSR compliance (Rust/Deno standards
+adapted for Julia)
+
+# Quick Examples
+
+## Dempster-Shafer Evidence Combination
+
+```julia
 using Causals
 
 # Expert 1: 60% confident in hypothesis A
@@ -73,12 +80,11 @@ expert2 = MassAssignment(frame, Dict(
 combined = combine_dempster(expert1, expert2)
 @show belief(combined, Set([:A]))       # Lower bound
 @show plausibility(combined, Set([:A])) # Upper bound
-----
+```
 
-=== Bradford Hill Causal Assessment
+## Bradford Hill Causal Assessment
 
-[source,julia]
-----
+```julia
 criteria = BradfordHillCriteria(
     strength = 0.85,           # Strong correlation
     consistency = 0.90,        # Replicated across studies
@@ -93,12 +99,11 @@ criteria = BradfordHillCriteria(
 
 verdict, confidence = assess_causality(criteria)
 # verdict: :strong, confidence: 0.78
-----
+```
 
-=== Granger Causality (Time Series)
+## Granger Causality (Time Series)
 
-[source,julia]
-----
+```julia
 # Does oil price Granger-cause inflation?
 oil_price = [....]  # historical data
 inflation = [....]
@@ -109,12 +114,11 @@ if causes
     println("Oil price Granger-causes inflation with lag $lag months")
     println("F-statistic: $F_stat, p-value: $p_value")
 end
-----
+```
 
-=== Causal DAG and Backdoor Criterion
+## Causal DAG and Backdoor Criterion
 
-[source,julia]
-----
+```julia
 # Build causal graph: Education → Income, Ability → Education, Ability → Income
 g = CausalGraph([:Education, :Income, :Ability, :ParentIncome])
 add_edge!(g, :Education, :Income)
@@ -126,12 +130,11 @@ add_edge!(g, :ParentIncome, :Education)
 @assert backdoor_criterion(g, :Education, :Income, Set([:Ability]))
 
 # Ability blocks backdoor path: Education ← Ability → Income
-----
+```
 
-=== Propensity Score Matching
+## Propensity Score Matching
 
-[source,julia]
-----
+```julia
 # Observational study: does training program increase wages?
 treatment = [....]  # received training (Bool)
 wages = [....]      # outcome
@@ -144,12 +147,11 @@ ps = propensity_score(treatment, covariates)
 matches, ate, std_err = matching(treatment, wages, ps, caliper=0.1)
 
 println("Average treatment effect: $(ate) ± $(1.96*std_err)")
-----
+```
 
-=== Counterfactual Reasoning
+## Counterfactual Reasoning
 
-[source,julia]
-----
+```julia
 # Among those who got treatment and recovered, would they have recovered without it?
 treatment = [:Treatment => true]
 outcome = :Recovered
@@ -160,28 +162,27 @@ data = Dict(
 
 pn = probability_of_necessity(:Treatment, :Recovered, data)
 println("Probability treatment was necessary: $(pn)")
-----
+```
 
-== Installation
+# Installation
 
-=== From Julia REPL
-[source,julia]
-----
+## From Julia REPL
+
+```julia
 using Pkg
 Pkg.add("Causals")
-----
+```
 
-=== From Git (Development)
-[source,julia]
-----
+## From Git (Development)
+
+```julia
 using Pkg
 Pkg.add(url="https://github.com/hyperpolymath/Causals.jl")
-----
+```
 
-== Quick Start
+# Quick Start
 
-[source,julia]
-----
+```julia
 using Causals
 
 # Combine evidence from multiple experts using Dempster-Shafer
@@ -191,123 +192,61 @@ expert2 = MassAssignment(frame, Dict(Set([:A, :B]) => 0.7, Set([:A, :B, :C]) => 
 
 combined = combine_dempster(expert1, expert2)
 println(belief(combined, Set([:A])))  # Lower bound on probability of A
-----
+```
 
-== Documentation
+# Documentation
 
-Full documentation at: https://hyperpolymath.github.io/Causals.jl
+Full documentation at: <https://hyperpolymath.github.io/Causals.jl>
 
-== Modules
+# Modules
 
-[cols="1,3"]
-|===
-| Module | Purpose
+| Module            | Purpose                                        |
+|-------------------|------------------------------------------------|
+| `DempsterShafer`  | Belief functions, evidence combination         |
+| `BradfordHill`    | 9-criterion causal assessment framework        |
+| `CausalDAG`       | Graphical models, d-separation, identification |
+| `Granger`         | Time series causality (VAR models, F-tests)    |
+| `PropensityScore` | Matching, IPW, stratification, doubly-robust   |
+| `DoCalculus`      | Intervention framework, effect identification  |
+| `Counterfactuals` | Twin networks, necessity/sufficiency           |
 
-| `DempsterShafer`
-| Belief functions, evidence combination
+# Comparison to Existing Packages
 
-| `BradfordHill`
-| 9-criterion causal assessment framework
+| Feature            | Causals.jl | CausalInference.jl | CausalityTools.jl | Causal.jl |
+|--------------------|------------|--------------------|-------------------|-----------|
+| Dempster-Shafer    | ✓          | ✗                  | ✗                 | ✗         |
+| Bradford Hill      | ✓          | ✗                  | ✗                 | ✗         |
+| Causal DAGs        | ✓          | ✓                  | ✗                 | ✗         |
+| Granger causality  | ✓          | ✗                  | ✓                 | ✗         |
+| Propensity scores  | ✓          | ✗                  | ✗                 | ✗         |
+| Do-calculus        | ✓          | Partial            | ✗                 | ✗         |
+| Counterfactuals    | ✓          | ✗                  | ✗                 | ✗         |
+| Production docs    | ✓          | Partial            | Partial           | ✗         |
+| Active maintenance | ✓          | ✓                  | ✓                 | ✗         |
 
-| `CausalDAG`
-| Graphical models, d-separation, identification
+# Status
 
-| `Granger`
-| Time series causality (VAR models, F-tests)
+**Alpha** - Core implementations complete, pending extensive testing and
+validation against reference implementations.
 
-| `PropensityScore`
-| Matching, IPW, stratification, doubly-robust
+# Contributing
 
-| `DoCalculus`
-| Intervention framework, effect identification
+See <a href="CONTRIBUTING.md" class="md">CONTRIBUTING</a> for
+development guidelines.
 
-| `Counterfactuals`
-| Twin networks, necessity/sufficiency
-|===
+# License
 
-== Comparison to Existing Packages
-
-[cols="2,1,1,1,1"]
-|===
-| Feature | Causals.jl | CausalInference.jl | CausalityTools.jl | Causal.jl
-
-| Dempster-Shafer
-| ✓
-| ✗
-| ✗
-| ✗
-
-| Bradford Hill
-| ✓
-| ✗
-| ✗
-| ✗
-
-| Causal DAGs
-| ✓
-| ✓
-| ✗
-| ✗
-
-| Granger causality
-| ✓
-| ✗
-| ✓
-| ✗
-
-| Propensity scores
-| ✓
-| ✗
-| ✗
-| ✗
-
-| Do-calculus
-| ✓
-| Partial
-| ✗
-| ✗
-
-| Counterfactuals
-| ✓
-| ✗
-| ✗
-| ✗
-
-| Production docs
-| ✓
-| Partial
-| Partial
-| ✗
-
-| Active maintenance
-| ✓
-| ✓
-| ✓
-| ✗
-|===
-
-== Status
-
-**Alpha** - Core implementations complete, pending extensive testing and validation against reference implementations.
-
-== Contributing
-
-See link:CONTRIBUTING.md[CONTRIBUTING.md] for development guidelines.
-
-== License
-
-Palimpsest-MPL License v1.0 (MPL-2.0) - see link:LICENSE[LICENSE].
+Palimpsest-MPL License v1.0 (MPL-2.0) - see [LICENSE](LICENSE).
 
 PMPL-1.0 is MPL-2.0 compatible and accepted by Julia General registry.
 
-== Citation
+# Citation
 
-[source,bibtex]
-----
+```bibtex
 @software{causals_jl,
   title = {Causals.jl: Comprehensive Causal Inference for Julia},
   author = {Hyperpolymath},
   year = {2025},
   url = {https://github.com/hyperpolymath/Causals.jl}
 }
-----
+```
