@@ -21,12 +21,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
       - name: Setup Julia
-        uses: julia-actions/setup-julia@4c0cb0fce8556fdb04a90347310e5db8b1f98fb9 # v2
+        uses: julia-actions/setup-julia@fa02766e078afaaf09b14210362cee14137e6a32 # v3.0.2
         with:
           version: ${{ matrix.julia-version }}
           arch: ${{ matrix.arch }}
       - name: Cache Julia artifacts
-        uses: julia-actions/cache@d10a6fd8f31b12404a54613ebad242900567f2b9 # v2
+        uses: julia-actions/cache@a45e8fa8be21c18a06b7177052533149e61e9b38 # v3.1.0
       - name: Install hyperpolymath-internal Julia deps from git
         # AcceleratorGate.jl is hyperpolymath-internal and not in any
         # Julia registry. Without adding it by URL, Pkg.instantiate
