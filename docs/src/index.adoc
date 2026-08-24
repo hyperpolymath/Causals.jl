@@ -1,44 +1,40 @@
-<!--
-SPDX-License-Identifier: CC-BY-SA-4.0
-Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
--->
-# Causals.jl
+== Causals.jl
 
 Comprehensive causal inference toolkit for Julia.
 
-## Overview
+=== Overview
 
 Causals.jl unifies multiple approaches to causal reasoning:
 
-- **Dempster-Shafer theory** - Combine uncertain expert opinions
-- **Bradford Hill criteria** - Assess causality in observational studies
-- **Causal DAGs** - Graphical models and identification
-- **Granger causality** - Time series causal analysis
-- **Propensity scores** - Observational study adjustment
-- **Do-calculus** - Pearl's intervention framework
-- **Counterfactuals** - "What if" reasoning
+* *Dempster-Shafer theory* - Combine uncertain expert opinions
+* *Bradford Hill criteria* - Assess causality in observational studies
+* *Causal DAGs* - Graphical models and identification
+* *Granger causality* - Time series causal analysis
+* *Propensity scores* - Observational study adjustment
+* *Do-calculus* - Pearl’s intervention framework
+* *Counterfactuals* - "`What if`" reasoning
 
-## Why Causals.jl?
+=== Why Causals.jl?
 
 Existing Julia causal packages are fragmented. Causals.jl provides:
 
-✓ Complete coverage of major causal methods
-✓ Production-quality implementations
-✓ Comprehensive documentation
-✓ Active maintenance
+✓ Complete coverage of major causal methods ✓ Production-quality
+implementations ✓ Comprehensive documentation ✓ Active maintenance
 
-## Installation
+=== Installation
 
-```julia
+[source,julia]
+----
 using Pkg
 Pkg.add(url="https://github.com/hyperpolymath/Causals.jl")
-```
+----
 
-## Quick Start
+=== Quick Start
 
-### Combining Expert Evidence
+==== Combining Expert Evidence
 
-```julia
+[source,julia]
+----
 using Causals
 
 # Two experts provide evidence about hypotheses
@@ -59,22 +55,24 @@ combined = combine_dempster(expert1, expert2)
 
 # Get belief interval
 lower, upper = uncertainty(combined, Set([:A]))
-```
+----
 
-### Granger Causality
+==== Granger Causality
 
-```julia
+[source,julia]
+----
 # Test if X Granger-causes Y
 causes, F_stat, p_value, lag = granger_test(x_series, y_series)
 
 if causes
     println("X Granger-causes Y with lag $lag")
 end
-```
+----
 
-### Causal DAG Analysis
+==== Causal DAG Analysis
 
-```julia
+[source,julia]
+----
 # Build causal graph
 g = CausalGraph([:X, :Y, :Z])
 add_edge!(g, :Z, :X)  # Z → X
@@ -83,16 +81,17 @@ add_edge!(g, :X, :Y)  # X → Y
 
 # Check if Z blocks backdoor path
 @assert backdoor_criterion(g, :X, :Y, Set([:Z]))
-```
+----
 
-## Modules
+=== Modules
 
-```@contents
+[source,@contents]
+----
 Pages = ["dempster_shafer.md", "bradford_hill.md", "causal_dag.md",
          "granger.md", "propensity.md", "do_calculus.md", "counterfactuals.md"]
 Depth = 1
-```
+----
 
-## License
+=== License
 
 MPL-2.0 (MPL-2.0 compatible)
