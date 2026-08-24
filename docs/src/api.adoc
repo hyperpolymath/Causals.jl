@@ -1,32 +1,32 @@
-<!--
-SPDX-License-Identifier: CC-BY-SA-4.0
-Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
--->
-# API Reference
+== API Reference
 
-Complete API reference for all exported functions and types in Causals.jl.
+Complete API reference for all exported functions and types in
+Causals.jl.
 
-## Dempster-Shafer Module
+=== Dempster-Shafer Module
 
-```@docs
+[source,@docs]
+----
 MassAssignment
 belief
 plausibility
 combine_dempster
 pignistic_transform
-```
+----
 
-## Bradford Hill Module
+=== Bradford Hill Module
 
-```@docs
+[source,@docs]
+----
 BradfordHillCriteria
 assess_causality
 strength_of_evidence
-```
+----
 
-## Causal DAG Module
+=== Causal DAG Module
 
-```@docs
+[source,@docs]
+----
 CausalGraph
 add_edge!
 remove_edge!
@@ -36,50 +36,55 @@ descendants
 backdoor_criterion
 frontdoor_criterion
 markov_blanket
-```
+----
 
-## Granger Causality Module
+=== Granger Causality Module
 
-```@docs
+[source,@docs]
+----
 granger_test
 granger_causality
 optimal_lag
 bidirectional_granger
-```
+----
 
-## Propensity Score Module
+=== Propensity Score Module
 
-```@docs
+[source,@docs]
+----
 propensity_score
 matching
 inverse_probability_weighting
 stratification
 doubly_robust
-```
+----
 
-## Do-Calculus Module
+=== Do-Calculus Module
 
-```@docs
+[source,@docs]
+----
 do_intervention
 identify_effect
 adjustment_formula
 confounding_adjustment
 do_calculus_rules
 Query
-```
+----
 
-## Counterfactuals Module
+=== Counterfactuals Module
 
-```@docs
+[source,@docs]
+----
 counterfactual
 twin_network
 probability_of_necessity
 probability_of_sufficiency
 probability_of_necessity_and_sufficiency
 Counterfactual
-```
+----
 
-## Index
+=== Index
 
-```@index
-```
+[source,@index]
+----
+----
