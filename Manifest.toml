@@ -29,8 +29,8 @@ version = "1.11.0"
 [[deps.Causals]]
 deps = ["Distributions", "Graphs", "LinearAlgebra", "Statistics", "StatsBase"]
 path = "."
-uuid = "c4a8b6d2-f9e3-4c1a-b8d7-9f2e3c4d5e6f"
-version = "0.2.0"
+uuid = "01a11d29-d897-8383-92d8-041d500f9c95"
+version = "0.2.1"
 
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]

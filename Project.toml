@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: MPL-2.0
 name = "Causals"
-uuid = "c4a8b6d2-f9e3-4c1a-b8d7-9f2e3c4d5e6f"
+uuid = "01a11d29-d897-8383-92d8-041d500f9c95"
 authors = ["Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>"]
-version = "0.2.0"
+version = "0.2.1"
 license = "MPL-2.0"
 
 [deps]
