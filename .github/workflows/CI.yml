@@ -16,7 +16,6 @@ jobs:
       matrix:
         julia-version: ['1.10', '1.11', 'nightly']
         os: [ubuntu-latest, macos-latest, windows-latest]
-        arch: [x64]
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
@@ -24,7 +23,6 @@ jobs:
         uses: julia-actions/setup-julia@fa02766e078afaaf09b14210362cee14137e6a32 # v3.0.2
         with:
           version: ${{ matrix.julia-version }}
-          arch: ${{ matrix.arch }}
       - name: Cache Julia artifacts
         uses: julia-actions/cache@9353db09a0f2bbbdec6f41791918c75d37391b36 # v3.5.0
       - name: Install hyperpolymath-internal Julia deps from git
